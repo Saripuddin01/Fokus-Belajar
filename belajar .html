@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jadwal Belajar Skolastik</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f0f4ff;
+      --surface: #ffffff;
+      --card: #ffffff;
+      --card-hover: #f8faff;
+      --accent: #e07b00;
+      --accent2: #2563eb;
+      --accent3: #059669;
+      --accent4: #7c3aed;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: rgba(0,0,0,0.08);
+      --glow: rgba(245,158,11,0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 20%, rgba(245,158,11,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 80% 80%, rgba(59,130,246,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 60% 30%, rgba(139,92,246,0.06) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+      animation: bgPulse 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes bgPulse {
+      from { transform: scale(1); opacity: 0.8; }
+      to { transform: scale(1.05); opacity: 1; }
+    }
+
+    /* === HEADER === */
+    header {
+      position: relative;
+      z-index: 1;
+      padding: 60px 24px 40px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(240,244,255,0.6) 100%);
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      color: var(--accent);
+      padding: 5px 14px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .header-badge .dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: blink 1.4s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 6vw, 52px);
+      font-weight: 900;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #1e293b 30%, #e07b00 70%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 14px;
+      animation: fadeDown 0.7s ease 0.1s both;
+    }
+
+    .header-sub {
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 400;
+      margin-bottom: 30px;
+      animation: fadeDown 0.7s ease 0.2s both;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      animation: fadeDown 0.7s ease 0.3s both;
+    }
+
+    .stat-chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .stat-chip .icon { font-size: 16px; }
+    .stat-chip strong { color: #1e293b; }
+    .stat-chip span { color: var(--muted); }
+
+    /* === PROGRESS TRACKER === */
+    .progress-section {
+      position: relative;
+      z-index: 1;
+      padding: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .progress-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .progress-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .progress-pct {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .day-track {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .day-cell {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #f8faff;
+      color: var(--muted);
+      gap: 3px;
+    }
+
+    .day-cell .day-name { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .day-cell .day-icon { font-size: 14px; }
+
+    .day-cell.done {
+      background: rgba(16,185,129,0.15);
+      border-color: rgba(16,185,129,0.4);
+      color: #10b981;
+    }
+
+    .day-cell.today {
+      background: rgba(245,158,11,0.15);
+      border-color: rgba(245,158,11,0.5);
+      color: var(--accent);
+      box-shadow: 0 0 12px rgba(245,158,11,0.2);
+    }
+
+    .day-cell:hover { transform: translateY(-2px); }
+
+    /* === MAIN GRID === */
+    .main-grid {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .card.amber::before { background: linear-gradient(90deg, var(--accent), transparent); }
+    .card.blue::before  { background: linear-gradient(90deg, var(--accent2), transparent); }
+    .card.green::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+    .card.purple::before{ background: linear-gradient(90deg, var(--accent4), transparent); }
+
+    .card:hover {
+      background: var(--card-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 48px rgba(0,0,0,0.12);
+    }
+
+    .card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card.amber .card-label { color: var(--accent); }
+    .card.blue  .card-label { color: var(--accent2); }
+    .card.green .card-label { color: var(--accent3); }
+    .card.purple .card-label { color: var(--accent4); }
+
+    .card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 16px;
+    }
+
+    /* Session items */
+    .session-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .session-item:last-child { border-bottom: none; }
+
+    .session-badge {
+      min-width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .card.amber .session-badge { background: rgba(245,158,11,0.15); }
+    .card.blue  .session-badge { background: rgba(59,130,246,0.12); }
+
+    .session-info { flex: 1; }
+    .session-name { font-size: 13px; font-weight: 600; color: #1e293b; }
+    .session-dur  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+    .session-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+
+    .tag-study  { background: rgba(245,158,11,0.15); color: var(--accent); }
+    .tag-rest   { background: rgba(100,116,139,0.15); color: var(--muted); }
+    .tag-drill  { background: rgba(59,130,246,0.15); color: var(--accent2); }
+    .tag-review { background: rgba(139,92,246,0.15); color: var(--accent4); }
+    .tag-mixed  { background: rgba(16,185,129,0.15); color: var(--accent3); }
+    .tag-analyze{ background: rgba(239,68,68,0.15); color: #ef4444; }
+
+    /* Weekly plan full width */
+    .card.full { grid-column: 1 / -1; }
+
+    .weekly-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 640px) {
+      .weekly-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .week-day {
+      background: #f8faff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+      transition: all 0.2s ease;
+      cursor: default;
+    }
+
+    .week-day.active {
+      border-color: rgba(245,158,11,0.4);
+      background: rgba(245,158,11,0.08);
+      box-shadow: 0 0 15px rgba(245,158,11,0.1);
+    }
+
+    .week-day-name {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .week-day.active .week-day-name { color: var(--accent); }
+
+    .week-icon { font-size: 20px; margin-bottom: 6px; display: block; }
+    .week-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #1e293b;
+      line-height: 1.3;
+    }
+
+    .week-pill {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Tips card */
+    .tips-list { list-style: none; }
+    .tips-list li {
+      display: flex;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      align-items: flex-start;
+    }
+    .tips-list li:last-child { border-bottom: none; }
+    .tips-list .tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .tips-list .tip-text { color: var(--text); line-height: 1.5; }
+
+    /* Timer */
+    .timer-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 0;
+    }
+
+    .timer-display {
+      font-family: 'Playfair Display', serif;
+      font-size: 52px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 2px;
+      line-height: 1;
+    }
+
+    .timer-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .timer-ring {
+      position: relative;
+      width: 110px;
+      height: 110px;
+    }
+
+    .timer-ring svg {
+      transform: rotate(-90deg);
+      width: 110px;
+      height: 110px;
+    }
+
+    .timer-ring circle {
+      fill: none;
+      stroke-width: 6;
+      stroke-linecap: round;
+    }
+
+    .ring-bg { stroke: var(--border); }
+    .ring-progress {
+      stroke: var(--accent);
+      stroke-dasharray: 314;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ring-center .time-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .ring-center .time-sub {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .timer-buttons {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .btn-primary:hover { background: #fbbf24; transform: translateY(-1px); }
+    .btn-secondary {
+      background: #f1f5f9;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { color: #1e293b; border-color: rgba(0,0,0,0.2); background: #e2e8f0; }
+
+    .session-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      width: 100%;
+    }
+
+    .sess-btn {
+      padding: 8px 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .sess-btn.active {
+      background: rgba(224,123,0,0.12);
+      border-color: rgba(224,123,0,0.4);
+      color: var(--accent);
+    }
+
+    .sess-btn:hover { color: #1e293b; }
+
+    /* Motivation */
+    .motivation-box {
+      background: linear-gradient(135deg, #fff8ed, #fef3c7);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+      margin-bottom: 16px;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .motivation-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.5;
+      color: #92400e;
+      font-style: italic;
+    }
+
+    .motivation-text.updating {
+      animation: textPop 0.4s ease;
+    }
+
+    @keyframes textPop {
+      0% { transform: scale(0.95); opacity: 0.5; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .mood-track {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .mood-btn {
+      flex: 1;
+      padding: 8px 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      text-align: center;
+      font-size: 18px;
+      transition: all 0.2s ease;
+    }
+
+    .mood-btn:hover { transform: scale(1.1); }
+    .mood-btn.selected { border-color: rgba(245,158,11,0.5); background: rgba(245,158,11,0.1); }
+
+    .mood-label {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    /* Note area */
+    .note-area {
+      width: 100%;
+      background: #f8faff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      color: #1e293b;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      resize: none;
+      outline: none;
+      line-height: 1.6;
+      transition: border-color 0.2s;
+    }
+
+    .note-area:focus { border-color: rgba(245,158,11,0.4); }
+    .note-area::placeholder { color: var(--muted); }
+
+    /* Animations */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:nth-child(1) { animation-delay: 0.1s; }
+    .card:nth-child(2) { animation-delay: 0.2s; }
+    .card:nth-child(3) { animation-delay: 0.3s; }
+    .card:nth-child(4) { animation-delay: 0.4s; }
+    .card:nth-child(5) { animation-delay: 0.5s; }
+    .card:nth-child(6) { animation-delay: 0.6s; }
+
+    /* Today indicator */
+    .today-banner {
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 10px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    .today-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: blink 1.4s infinite; flex-shrink: 0; }
+    .today-text { color: var(--text); }
+    .today-text strong { color: var(--accent); }
+
+    /* Progress bar */
+    .prog-bar-wrap { background: var(--surface); border-radius: 100px; height: 6px; overflow: hidden; }
+    .prog-bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--accent), #fbbf24);
+      transition: width 0.6s ease;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge"><span class="dot"></span> Program Aktif</div>
+  <h1>Jadwal Belajar<br>Tes Skolastik</h1>
+  <p class="header-sub">Terstruktur · Terukur · Terfokus</p>
+  <div class="stats-row">
+    <div class="stat-chip"><span class="icon">⏱️</span><strong>3 Jam</strong><span>/ hari</span></div>
+    <div class="stat-chip"><span class="icon">📅</span><strong>7 Hari</strong><span>/ minggu</span></div>
+    <div class="stat-chip"><span class="icon">🧠</span><strong>3 Materi</strong><span>Inti</span></div>
+    <div class="stat-chip"><span class="icon">🎯</span><strong>Pomodoro</strong><span>25 menit</span></div>
+  </div>
+</header>
+
+<div class="progress-section">
+  <div class="progress-card">
+    <div class="progress-header">
+      <span class="progress-title">📊 Progress Minggu Ini</span>
+      <span class="progress-pct" id="weekPct">0%</span>
+    </div>
+    <div class="prog-bar-wrap" style="margin-bottom:14px;">
+      <div class="prog-bar-fill" id="weekBar" style="width:0%"></div>
+    </div>
+    <div class="day-track" id="dayTrack"></div>
+  </div>
+</div>
+
+<div class="main-grid">
+
+  <!-- Sesi 1 -->
+  <div class="card amber">
+    <div class="card-label">🌅 Sesi Pertama</div>
+    <h2>Pagi / Siang</h2>
+    <div class="today-banner">
+      <div class="today-dot"></div>
+      <div class="today-text">Durasi total: <strong>85 menit</strong> | 3 sesi fokus</div>
+    </div>
+    <div class="session-item">
+      <div class="session-badge">📖</div>
+      <div class="session-info">
+        <div class="session-name">Belajar Konsep</div>
+        <div class="session-dur">Pahami teori & rumus baru</div>
+      </div>
+      <span class="session-tag tag-study">25 mnt</span>
+    </div>
+    <div class="session-item">
+      <div class="session-badge">☕</div>
+      <div class="session-info">
+        <div class="session-name">Istirahat</div>
+        <div class="session-dur">Gerak ringan, minum air</div>
+      </div>
+      <span class="session-tag tag-rest">5 mnt</span>
+    </div>
+    <div class="session-item">
+      <div class="session-badge">✏️</div>
+      <div class="session-info">
+        <div class="session-name">Latihan Soal</div>
+        <div class="session-dur">Terapkan konsep yang dipelajari</div>
+      </div>
+      <span class="session-tag tag-drill">25 mnt</span>
+    </div>
+    <div class="session-item">
+      <div class="session-badge">☕</div>
+      <div class="session-info">
+        <div class="session-name">Istirahat</div>
+        <div class="session-dur">Stretching ringan</div>
+      </div>
+      <span class="session-tag tag-rest">5 mnt</span>
+    </div>
+    <div class="session-item">
+      <div class="session-badge">🔁</div>
+      <div class="session-info">
+        <div class="session-name">Review & Rangkum</div>
+        <div class="session-dur">Catat poin kunci di buku</div>
+      </div>
+      <span class="session-tag tag-review">25 mnt</span>
+    </div>
+  </div>
+
+  <!-- Sesi 2 -->
+  <div class="card blue">
+    <div class="card-label">🌙 Sesi Kedua</div>
+    <h2>Sore / Malam</h2>
+    <div class="today-banner" style="background:rgba(59,130,246,0.08);border-color:rgba(59,130,246,0.25);">
+      <div class="today-dot" style="background:var(--accent2)"></div>
+      <div class="today-text">Durasi total: <strong>85 menit</strong> | Fokus latihan</div>
+    </div>
+    <div class="session-item">
+      <div class="session-badge">🔀</div>
+      <div class="session-info">
+        <div class="session-name">Latihan Campuran</div>
+        <div class="session-dur">Semua tipe soal tanpa batas waktu</div>
+      </div>
+      <span class="session-tag tag-mixed">25 mnt</span>
+    </div>
+    <div class="session-item">
+      <div class="session-badge">💧</div>
+      <div class="session-info">
+        <div class="session-name">Istirahat</div>
+        <div class="session-dur">Relaksasi mata & pikiran</div>
+      </div>
+      <span class="session-tag tag-rest">5 mnt</span>
+    </div>
+    <div class="session-item">
+      <div class="session-badge">⏱️</div>
+      <div class="session-info">
+        <div class="session-name">Latihan Time Limit</div>
+        <div class="session-dur">Simulasi kondisi ujian nyata</div>
+      </div>
+      <span class="session-tag tag-drill">25 mnt</span>
+    </div>
+    <div class="session-item">
+      <div class="session-badge">💧</div>
+      <div class="session-info">
+        <div class="session-name">Istirahat</div>
+        <div class="session-dur">Persiapkan analisis</div>
+      </div>
+      <span class="session-tag tag-rest">5 mnt</span>
+    </div>
+    <div class="session-item">
+      <div class="session-badge">🔍</div>
+      <div class="session-info">
+        <div class="session-name">Analisis Kesalahan</div>
+        <div class="session-dur">Identifikasi pola kelemahan</div>
+      </div>
+      <span class="session-tag tag-analyze">25 mnt</span>
+    </div>
+  </div>
+
+  <!-- Jadwal Mingguan Full Width -->
+  <div class="card full green">
+    <div class="card-label">📅 Rencana Mingguan</div>
+    <h2>Materi Per Hari</h2>
+    <div class="weekly-grid" id="weeklyGrid"></div>
+  </div>
+
+  <!-- Timer Pomodoro -->
+  <div class="card purple">
+    <div class="card-label">⏱️ Pomodoro Timer</div>
+    <h2>Mulai Fokus</h2>
+    <div class="timer-block">
+      <div class="session-selector">
+        <div class="sess-btn active" onclick="setTimer(25,'Belajar',this)">📖 25 mnt</div>
+        <div class="sess-btn" onclick="setTimer(5,'Istirahat',this)">☕ 5 mnt</div>
+        <div class="sess-btn" onclick="setTimer(10,'Panjang',this)">🛌 10 mnt</div>
+      </div>
+      <div class="timer-ring">
+        <svg viewBox="0 0 110 110">
+          <circle class="ring-bg" cx="55" cy="55" r="50"/>
+          <circle class="ring-progress" id="ringProg" cx="55" cy="55" r="50"/>
+        </svg>
+        <div class="ring-center">
+          <span class="time-text" id="timerDisp">25:00</span>
+          <span class="time-sub" id="timerMode">Belajar</span>
+        </div>
+      </div>
+      <div class="timer-buttons">
+        <button class="btn btn-primary" id="startBtn" onclick="toggleTimer()">▶ Mulai</button>
+        <button class="btn btn-secondary" onclick="resetTimer()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Motivasi -->
+  <div class="card amber">
+    <div class="card-label">💬 Motivasi Harian</div>
+    <h2>Semangat Belajar</h2>
+    <div class="motivation-box">
+      <div class="motivation-text" id="motivasiText">Klik tombol untuk mendapatkan motivasi ✨</div>
+    </div>
+    <button class="btn btn-primary" onclick="generateMotivation()" style="width:100%;margin-bottom:14px;">🎲 Motivasi Baru</button>
+    <div class="mood-label" style="margin-bottom:8px;">Bagaimana mood belajarmu hari ini?</div>
+    <div class="mood-track">
+      <div>
+        <div class="mood-btn" onclick="selectMood(this)">😫</div>
+        <div class="mood-label">Lelah</div>
+      </div>
+      <div>
+        <div class="mood-btn" onclick="selectMood(this)">😐</div>
+        <div class="mood-label">Biasa</div>
+      </div>
+      <div>
+        <div class="mood-btn" onclick="selectMood(this)">😊</div>
+        <div class="mood-label">Bagus</div>
+      </div>
+      <div>
+        <div class="mood-btn" onclick="selectMood(this)">🔥</div>
+        <div class="mood-label">Semangat</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips -->
+  <div class="card blue">
+    <div class="card-label">💡 Tips Belajar</div>
+    <h2>Strategi Efektif</h2>
+    <ul class="tips-list">
+      <li><span class="tip-icon">🧠</span><span class="tip-text"><strong>Active Recall</strong> — Tutup catatan, coba ingat sendiri. Lebih efektif dari membaca ulang.</span></li>
+      <li><span class="tip-icon">📝</span><span class="tip-text"><strong>Spaced Repetition</strong> — Ulangi materi di hari 1, 3, 7. Memori jadi jauh lebih kuat.</span></li>
+      <li><span class="tip-icon">❌</span><span class="tip-text"><strong>Error Log</strong> — Catat setiap soal yang salah beserta alasannya. Ini adalah kelemahanmu.</span></li>
+      <li><span class="tip-icon">🎯</span><span class="tip-text"><strong>Simulasi Ujian</strong> — Minimal 1x seminggu latihan dengan kondisi mirip tes nyata.</span></li>
+      <li><span class="tip-icon">😴</span><span class="tip-text"><strong>Tidur Cukup</strong> — Otak mengkonsolidasi memori saat tidur. Jangan korbankan tidur!</span></li>
+    </ul>
+  </div>
+
+  <!-- Catatan Harian -->
+  <div class="card green">
+    <div class="card-label">📓 Catatan Hari Ini</div>
+    <h2>Jurnal Belajar</h2>
+    <textarea class="note-area" rows="5" placeholder="Tulis ringkasan belajarmu hari ini... Konsep apa yang dipelajari? Soal apa yang masih sulit? Target besok apa?"></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="saveNote()">💾 Simpan</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="clearNote()">🗑️ Hapus</button>
+    </div>
+    <div id="noteSaved" style="font-size:12px;color:var(--accent3);margin-top:8px;display:none;">✅ Catatan tersimpan!</div>
+  </div>
+
+</div>
+
+<footer>
+  <p>🎯 Skolastik Study Planner · Tetap konsisten, hasil pasti datang 💪</p>
+</footer>
+
+<script>
+  // ===== WEEKLY DATA =====
+  const weekData = [
+    { day:'Sen', icon:'💬', label:'Verbal', color:'#f59e0b', bg:'rgba(245,158,11,0.12)', pill:'Pemahaman' },
+    { day:'Sel', icon:'🔢', label:'Numerik', color:'#3b82f6', bg:'rgba(59,130,246,0.12)', pill:'Aritmetika' },
+    { day:'Rab', icon:'🧩', label:'Logika', color:'#8b5cf6', bg:'rgba(139,92,246,0.12)', pill:'Penalaran' },
+    { day:'Kam', icon:'💬', label:'Verbal', color:'#f59e0b', bg:'rgba(245,158,11,0.12)', pill:'Lanjutan' },
+    { day:'Jum', icon:'🔢', label:'Numerik', color:'#3b82f6', bg:'rgba(59,130,246,0.12)', pill:'Drill' },
+    { day:'Sab', icon:'🔀', label:'Campuran', color:'#10b981', bg:'rgba(16,185,129,0.12)', pill:'Semua tipe' },
+    { day:'Min', icon:'📋', label:'Review', color:'#ef4444', bg:'rgba(239,68,68,0.12)', pill:'Evaluasi' },
+  ];
+
+  const days = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  const todayIdx = new Date().getDay(); // 0=Sun
+  // map to our array (Mon=0 in our array)
+  const mappedToday = todayIdx === 0 ? 6 : todayIdx - 1;
+
+  const grid = document.getElementById('weeklyGrid');
+  weekData.forEach((d, i) => {
+    const isToday = i === mappedToday;
+    grid.innerHTML += `
+      <div class="week-day ${isToday ? 'active' : ''}">
+        <div class="week-day-name">${d.day}${isToday ? ' 🔆' : ''}</div>
+        <span class="week-icon">${d.icon}</span>
+        <div class="week-label">${d.label}</div>
+        <span class="week-pill" style="background:${d.bg};color:${d.color};">${d.pill}</span>
+      </div>`;
+  });
+
+  // ===== DAY TRACKER =====
+  const dayNames = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  const savedDays = JSON.parse(localStorage.getItem('studyDays') || '[]');
+  const track = document.getElementById('dayTrack');
+  dayNames.forEach((d, i) => {
+    const done = savedDays.includes(i);
+    const isT = i === mappedToday;
+    track.innerHTML += `
+      <div class="day-cell ${done ? 'done' : isT ? 'today' : ''}" onclick="toggleDay(${i},this)">
+        <span class="day-icon">${done ? '✅' : isT ? '▶️' : '⬜'}</span>
+        <span class="day-name">${d}</span>
+      </div>`;
+  });
+  updateProgress();
+
+  function toggleDay(idx, el) {
+    const days = JSON.parse(localStorage.getItem('studyDays') || '[]');
+    const pos = days.indexOf(idx);
+    if (pos > -1) {
+      days.splice(pos, 1);
+      el.className = 'day-cell';
+      el.querySelector('.day-icon').textContent = '⬜';
+    } else {
+      days.push(idx);
+      el.className = 'day-cell done';
+      el.querySelector('.day-icon').textContent = '✅';
+    }
+    localStorage.setItem('studyDays', JSON.stringify(days));
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const days = JSON.parse(localStorage.getItem('studyDays') || '[]');
+    const pct = Math.round((days.length / 7) * 100);
+    document.getElementById('weekPct').textContent = pct + '%';
+    document.getElementById('weekBar').style.width = pct + '%';
+  }
+
+  // ===== TIMER =====
+  let totalSecs = 25 * 60;
+  let remaining = totalSecs;
+  let timerInterval = null;
+  let running = false;
+
+  function setTimer(mins, label, btn) {
+    document.querySelectorAll('.sess-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    totalSecs = mins * 60;
+    remaining = totalSecs;
+    running = false;
+    clearInterval(timerInterval);
+    document.getElementById('startBtn').textContent = '▶ Mulai';
+    document.getElementById('timerMode').textContent = label;
+    updateTimerDisplay();
+    updateRing();
+  }
+
+  function toggleTimer() {
+    if (running) {
+      clearInterval(timerInterval);
+      running = false;
+      document.getElementById('startBtn').textContent = '▶ Lanjut';
+    } else {
+      running = true;
+      document.getElementById('startBtn').textContent = '⏸ Pause';
+      timerInterval = setInterval(() => {
+        remaining--;
+        updateTimerDisplay();
+        updateRing();
+        if (remaining <= 0) {
+          clearInterval(timerInterval);
+          running = false;
+          document.getElementById('startBtn').textContent = '▶ Mulai';
+          document.title = '✅ Selesai! Jadwal Belajar';
+          setTimeout(() => document.title = 'Jadwal Belajar Skolastik', 3000);
+        }
+      }, 1000);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    running = false;
+    remaining = totalSecs;
+    document.getElementById('startBtn').textContent = '▶ Mulai';
+    updateTimerDisplay();
+    updateRing();
+  }
+
+  function updateTimerDisplay() {
+    const m = Math.floor(remaining / 60).toString().padStart(2, '0');
+    const s = (remaining % 60).toString().padStart(2, '0');
+    document.getElementById('timerDisp').textContent = `${m}:${s}`;
+    document.title = running ? `${m}:${s} · Belajar` : 'Jadwal Belajar Skolastik';
+  }
+
+  function updateRing() {
+    const circ = 2 * Math.PI * 50;
+    const offset = circ * (1 - remaining / totalSecs);
+    document.getElementById('ringProg').style.strokeDashoffset = offset;
+    // Color shift
+    const pct = remaining / totalSecs;
+    const color = pct > 0.5 ? '#f59e0b' : pct > 0.25 ? '#3b82f6' : '#ef4444';
+    document.getElementById('ringProg').style.stroke = color;
+  }
+
+  updateRing();
+
+  // ===== MOTIVATION =====
+  const motivasiList = [
+    "Sedikit setiap hari lebih baik daripada banyak tapi jarang. 🌱",
+    "Konsistensi mengalahkan motivasi sesaat. 🔥",
+    "Fokus hari ini menentukan masa depanmu. 🎯",
+    "Latihan hari ini adalah investasi untuk hasil esok hari. 📈",
+    "Jangan menyerah, kamu sedang berkembang pesat. 💪",
+    "Orang sukses bukan yang paling pintar, tapi yang paling konsisten. 🏆",
+    "Setiap soal yang kamu pahami adalah satu langkah menuju tujuan. 🚀",
+    "Lelah itu wajar, menyerah tidak boleh. 🦁",
+    "Kamu tidak harus sempurna, cukup terus bergerak maju. 🌊",
+    "Hasil terbaik datang dari proses yang tidak pernah berhenti. ⭐",
+    "Hari ini mungkin sulit, tapi kamu lebih kuat dari rasa sulit itu. 💎",
+    "Belajarlah seolah ujian besok, hiduplah seolah masih panjang. 📚",
+  ];
+
+  function generateMotivation() {
+    const random = Math.floor(Math.random() * motivasiList.length);
+    const el = document.getElementById('motivasiText');
+    el.classList.remove('updating');
+    void el.offsetWidth;
+    el.classList.add('updating');
+    el.textContent = motivasiList[random];
+  }
+
+  function selectMood(btn) {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  // ===== NOTES =====
+  const savedNote = localStorage.getItem('studyNote');
+  if (savedNote) document.querySelector('.note-area').value = savedNote;
+
+  function saveNote() {
+    const note = document.querySelector('.note-area').value;
+    localStorage.setItem('studyNote', note);
+    const saved = document.getElementById('noteSaved');
+    saved.style.display = 'block';
+    setTimeout(() => saved.style.display = 'none', 2500);
+  }
+
+  function clearNote() {
+    document.querySelector('.note-area').value = '';
+    localStorage.removeItem('studyNote');
+  }
+</script>
+</body>
+</html>
